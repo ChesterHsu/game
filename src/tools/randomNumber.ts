@@ -1,6 +1,6 @@
 import { padNumberEnd } from './padNumber';
 
-const nonRepetitiveNumberResult = new Set();
+let nonRepetitiveNumberResult = new Set();
 
 // 產生隨機數字 quantity: 需產隨機幾位數數的數量
 function randomNumber(quantity: number): number {
@@ -36,4 +36,8 @@ function nonRepetitiveNumber(quantity: number): number[] {
     return Array.from(nonRepetitiveNumberResult) as number[];
 }
 
-export { randomNumber, nonRepetitiveNumber, checkRandomQuantity };
+function emptyNonRepetitiveNumber() {
+    nonRepetitiveNumberResult = new Set();
+}
+
+export { randomNumber, nonRepetitiveNumber, emptyNonRepetitiveNumber, checkRandomQuantity };

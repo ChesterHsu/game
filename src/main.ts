@@ -3,6 +3,7 @@ import App from './App.vue';
 import store from './store';
 import router from '@/router';
 import SvgIcon from '@icon/index.vue';
+import 'normalize-css';
 
 const app = createApp(App);
 app.use(store);

@@ -11,6 +11,16 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('@pages/Home.vue'),
     },
+    {
+        path: '/1a2b',
+        name: '1A2B',
+        meta: {
+            title: '1A2B',
+            keepAlive: true,
+            requireAuth: true,
+        },
+        component: () => import('@pages/1A2B.vue'),
+    },
 ];
 
 const router = createRouter({
