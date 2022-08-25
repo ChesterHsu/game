@@ -1,6 +1,6 @@
 function excludeSame(dataValue: number[], enter: number): object {
     let flag = false;
-    const toSet = new Set(dataValue);
+    const toSet = new Set(excludeFirstPlace(dataValue));
     let result: number[] = [];
 
     if (toSet.has(enter)) {
@@ -14,4 +14,12 @@ function excludeSame(dataValue: number[], enter: number): object {
     return { result, flag };
 }
 
-export { excludeSame };
+function excludeFirstPlace(firstPlace: number[]): number[] {
+    return firstPlace.filter((fp: number, index: number) => {
+        if (index === 0 && fp !== 0) {
+            return fp;
+        }
+    });
+}
+
+export { excludeSame, excludeFirstPlace };

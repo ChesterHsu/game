@@ -14,7 +14,7 @@
                 <button @click="getNonRepetitiveNumber">產生隨機數</button>
             </div>
             <div class="enter">
-                <input v-model="enterValue" type="number" />
+                <input v-model="enterValue" />
                 <button :disabled="enterArray.length !== 4" @click="setResult">
                     送出
                 </button>
@@ -25,6 +25,7 @@
                 </div>
                 <div class="pass" v-else>結果: 恭喜過關!!!!!!!!!!!!</div>
             </div>
+            <div>說明: 請輸入四位數號碼,且號碼不得重複</div>
         </div>
     </main>
 </template>
@@ -37,6 +38,7 @@ import {
 } from '@/tools/randomNumber';
 import { compareWith1A2B, compareWithNumberArray } from '@/tools/comparison';
 import { numberToArray } from '@/tools/transform';
+import { excludeSame } from '@/tools/check';
 
 let answerArray = ref(nonRepetitiveNumber(4));
 let checkRepeat = ref([] as number[]);
@@ -66,6 +68,7 @@ function setResult() {
 }
 
 watch(enterValue, (newValue) => {
+    enterValue.value = Number(newValue);
     enterArray.value = numberToArray(newValue);
 });
 </script>
@@ -112,6 +115,6 @@ main {
     }
 }
 .pass {
-  color: red;
+    color: red;
 }
 </style>
