@@ -1,119 +1,191 @@
 <template>
   <main>
-    <div class="content">
-      <div class="answer">
-        <template
-            v-for="(answer, answerIndex) in answerArray"
-            :key="answerIndex"
-        >
-          <div v-if="getCheckRepeat(answerIndex)" class="frame">
-            {{ answer }}
-          </div>
-          <div v-else class="frame">?</div>
-        </template>
-        <button @click="getNonRepetitiveNumber">產生隨機數</button>
-      </div>
-      <div class="enter">
-        <input v-model="enterValue" />
-        <button :disabled="enterArray.length !== 4" @click="setResult">
-          送出
-        </button>
-      </div>
-      <div class="result">
-        <div v-if="result.a !== 4">
-          結果: A:{{ result.a }},B:{{ result.b }}
+    <div class="game-item">
+      <div class="title"></div>
+      <div class="content">
+        <!-- 將隨機數顯示到框框中 -->
+        <div class="answer-item">
+          <template v-for="(answer) in answerArray">
+            <div class="answer">{{ answer }}</div>
+          </template>
         </div>
-        <div class="pass" v-else>結果: 恭喜過關!!!!!!!!!!!!</div>
+        <button @click="refreshAnswer">刷新</button>
+        <div class="result">
+          <div class="result-title">輸入答案：</div>
+          <template v-for="(answer, index) in answerArray">
+            <div class="result-answer">{{ resultNumber[index] }}</div>
+          </template>
+        </div>
+        <div class="numeric-keyboard">
+          <template v-for="(keyboard) in numericKeyboardList">
+            <div class="keyboard" @click="keyboardAction(keyboard)">{{ keyboard }}</div>
+          </template>
+        </div>
+        <div class="beyond">
+          <div class="beyond-title">溫馨提示：</div>
+          <div class="beyond-message">{{ promptMessage.message }}</div>
+        </div>
       </div>
-      <div>說明: 請輸入四位數號碼,且號碼不得重複</div>
+      <div class="illustrate"></div>
     </div>
   </main>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref } from "vue";
 import {
-    nonRepetitiveNumber,
-    emptyNonRepetitiveNumber,
+  nonRepetitiveNumber,
+  emptyNonRepetitiveNumber
 } from '@/tools/randomNumber'
-import { compareWith1A2B, compareWithNumberArray } from '@/tools/comparison'
-import { numberToArray } from '@/tools/transform'
 
-let answerArray = ref(nonRepetitiveNumber(4))
-let checkRepeat = ref([] as number[])
-let enterValue = ref(0)
-let enterArray = ref([] as number[])
-let result = ref(Object)
 
-function getNonRepetitiveNumber() {
-  emptyNonRepetitiveNumber()
-  answerArray.value = nonRepetitiveNumber(4)
+let answerArray = ref(nonRepetitiveNumber(4)); // 初始化給值
+const numericKeyboardList = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c', '0', 'x']); // 數字鍵盤的值
+const resultNumber = ref([] as number[]); // 輸入結果答案
+const checkResult = ref(new Set()); // 檢核輸入結果
+const promptMessage = ref(
+    {
+      type: '', // 提示型別顏色區分 general: 綠色, warning: 黃色, error: 紅色
+      message: '',
+    }
+); // 提示訊息
+
+// 刷新初始化功能
+function refreshAnswer() {
+  emptyNonRepetitiveNumber(); // 清空數據
+  answerArray.value = nonRepetitiveNumber(4); // 重新賦值
 }
 
-function getCheckRepeat(index: number) {
-  if (checkRepeat.value.indexOf(index) !== -1) {
-    return true
-  } else {
-    return false
+// 鍵盤功能
+function keyboardAction(item: string) {
+
+  switch (item) {
+    case 'c':
+      resultNumber.value = []
+      checkResult.value = new Set(resultNumber.value)
+      checkBeyond()
+      break;
+    case 'x':
+      resultNumber.value.pop()
+      checkResult.value = new Set(resultNumber.value)
+      checkBeyond()
+      break;
+    default:
+      if (checkBeyond()) return; // 檢查是否超出輸入數量
+      if (checkResultRepeat(item)) {
+        promptMessage.value.type = 'warning'
+        promptMessage.value.message = '請勿重複輸入！！！！！！！！！'
+      } else {
+        promptMessage.value.type = ''
+        promptMessage.value.message = ''
+      }
+      resultNumber.value = Array.from(checkResult.value) as number[]
+      break;
   }
 }
 
-function setResult() {
-  result.value = compareWith1A2B(answerArray.value, enterArray.value)
-  checkRepeat.value = compareWithNumberArray(
-      answerArray.value,
-      enterArray.value,
-  );
+function checkBeyond() {
+  let isBeyond = false
+  // 判斷是否輸入超出
+  if (resultNumber.value.length >= 4) {
+    promptMessage.value.type = 'warning'
+    promptMessage.value.message = '輸入數字數量已超過四個,請勿再輸入！！！！'
+    isBeyond = true
+  } else {
+    promptMessage.value.type = ''
+    promptMessage.value.message = ''
+  }
+  return isBeyond
 }
 
-watch(enterValue, (newValue) => {
-  enterValue.value = Number(newValue)
-  enterArray.value = numberToArray(newValue)
-})
+
+// 判斷是否有輸入進重複值
+function checkResultRepeat(value): boolean {
+  let isRepeat = false
+
+  if (!checkResult.value.has(value)) {
+    checkResult.value.add(value)
+  } else {
+    isRepeat = true
+  }
+
+  return isRepeat
+}
 </script>
 
 <style lang="scss" scoped>
 main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .game-item {
+    min-width: 320px;
+    max-width: 400px;
+    min-height: 520px;
+    max-height: 900px;
+    border-width:4px;
+    border-style: dashed;
+    border-radius: 5px;
     .content {
-        display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-        flex-direction: column;
-        border-style: dotted;
-        border-width: 5px;
-        border-color: black;
-        max-width: 350px;
-        width: 100%;
-        height: 500px;
-        padding: 10px;
+      padding: 10px;
     }
+  }
 }
-.answer {
+
+.answer-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  .answer {
     display: flex;
     justify-content: center;
     align-items: center;
-    .frame {
-        color: red;
-        display: flex;
-        border-style: double;
-        border-width: 5px;
-        border-color: black;
-        padding: 10px;
-        margin: 0px 3px;
-    }
+    width: 10%;
+    height: 40px;
+    border-width:4px;
+    border-style: double;
+  }
 }
-.enter {
-    margin: 5px;
-    width: 100%;
+
+.result {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0px;
+  .result-title {
     display: flex;
-    input {
-        width: 50%;
-    }
+    justify-content: center;
+    align-items: center;
+  }
+  .result-answer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10%;
+    height: 40px;
+    border-width:4px;
+    border-style: dashed solid;
+  }
 }
-.pass {
-    color: red;
+
+.numeric-keyboard {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  .keyboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+    height: 40px;
+    border-width:4px;
+    border-collapse: collapse;
+    border-style: inset;
+  }
+}
+
+.beyond {
+  margin: 10px 0px;
 }
 </style>

@@ -9,11 +9,11 @@ yarn install
 ````
 ### Run
 ````
-yarn install
+yarn run dev
 ````
 ### Build
 ````
-yarn install
+yarn build
 ````
 
 ### Test
