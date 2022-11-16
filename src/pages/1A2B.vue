@@ -5,8 +5,9 @@
       <div class="content">
         <!-- 將隨機數顯示到框框中 -->
         <div class="answer-item">
-          <template v-for="(answer) in answerArray">
-            <div class="answer">{{ answer }}</div>
+          <template v-for="(answer, index) in answerArray">
+            <div v-if="getCheckRepeat(index)" class="answer">{{ answer }}</div>
+            <div v-else class="answer">?</div>
           </template>
         </div>
         <button @click="refreshAnswer">刷新</button>
@@ -27,6 +28,9 @@
         </div>
       </div>
       <div class="illustrate"></div>
+      <div class="submit-result">
+        <button class="submit-button" @click="setResult">送出</button>
+      </div>
     </div>
   </main>
 </template>
@@ -37,18 +41,21 @@ import {
   nonRepetitiveNumber,
   emptyNonRepetitiveNumber
 } from '@/tools/randomNumber'
+import { compareWith1A2B, compareWithNumberArray } from '@/tools/comparison'
 
 
 let answerArray = ref(nonRepetitiveNumber(4)); // 初始化給值
-const numericKeyboardList = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c', '0', 'x']); // 數字鍵盤的值
+const numericKeyboardList = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c', '0', 'x'] as String[]); // 數字鍵盤的值
 const resultNumber = ref([] as number[]); // 輸入結果答案
 const checkResult = ref(new Set()); // 檢核輸入結果
+let checkRepeat = ref([] as number[]) // 送出結果
 const promptMessage = ref(
     {
       type: '', // 提示型別顏色區分 general: 綠色, warning: 黃色, error: 紅色
       message: '',
     }
 ); // 提示訊息
+let result = ref({})
 
 // 刷新初始化功能
 function refreshAnswer() {
@@ -82,6 +89,22 @@ function keyboardAction(item: string) {
       resultNumber.value = Array.from(checkResult.value) as number[]
       break;
   }
+}
+
+function getCheckRepeat(index: number) {
+  if (resultNumber.value.indexOf(index) !== -1) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function setResult() {
+  result.value = compareWith1A2B(answerArray.value, resultNumber.value)
+  checkRepeat.value = compareWithNumberArray(
+      answerArray.value,
+      resultNumber.value,
+  );
 }
 
 function checkBeyond() {
@@ -121,6 +144,8 @@ main {
   justify-content: center;
   align-items: center;
   .game-item {
+    display: flex;
+    flex-direction: column;
     min-width: 320px;
     max-width: 400px;
     min-height: 520px;
@@ -128,9 +153,10 @@ main {
     border-width:4px;
     border-style: dashed;
     border-radius: 5px;
-    .content {
-      padding: 10px;
-    }
+    padding: 10px;
+  }
+  .content {
+    flex-grow: 1;
   }
 }
 
@@ -146,6 +172,7 @@ main {
     height: 40px;
     border-width:4px;
     border-style: double;
+    flex-direction: column;
   }
 }
 
@@ -187,5 +214,10 @@ main {
 
 .beyond {
   margin: 10px 0px;
+}
+
+.submit-button {
+  width: 100%;
+  height: 45px;
 }
 </style>
