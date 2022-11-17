@@ -27,7 +27,6 @@
           <div class="beyond-message">{{ promptMessage.message }}</div>
         </div>
       </div>
-      <div class="illustrate"></div>
       <div class="submit-result">
         <button class="submit-button" @click="setResult">送出</button>
       </div>
@@ -44,11 +43,11 @@ import {
 import { compareWith1A2B, compareWithNumberArray } from '@/tools/comparison'
 
 
-let answerArray = ref(nonRepetitiveNumber(4)); // 初始化給值
+const answerArray = ref(nonRepetitiveNumber(4)); // 初始化給值
 const numericKeyboardList = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c', '0', 'x'] as String[]); // 數字鍵盤的值
 const resultNumber = ref([] as number[]); // 輸入結果答案
 const checkResult = ref(new Set()); // 檢核輸入結果
-let checkRepeat = ref([] as number[]) // 送出結果
+const checkRepeat = ref([] as number[]) // 送出結果
 const promptMessage = ref(
     {
       /*
@@ -163,7 +162,6 @@ function setResult() {
   } else {
     setMessage(3, `沒中？？！笑你～`)
   }
-
 
   checkRepeat.value = compareWithNumberArray(
       answerArray.value,
