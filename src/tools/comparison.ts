@@ -13,7 +13,7 @@ function compareWithNumberArray(
 }
 
 // 計算1A2B數量並返還物件
-function compareWith1A2B(compareWith: number[], compared: number[]): object {
+function compareWith1A2B(compareWith: number[], compared: number[]): { a: number, b: number } {
     const a = compareWithNumberArray(compareWith, compared).length;
     let b = 0;
     const filter = excludeIndex(

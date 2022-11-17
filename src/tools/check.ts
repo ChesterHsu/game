@@ -1,3 +1,4 @@
+// 陣列排除相同值
 function excludeSame(dataValue: number[], enter: number): object {
     let flag = false;
     const toSet = new Set(excludeFirstPlace(dataValue));

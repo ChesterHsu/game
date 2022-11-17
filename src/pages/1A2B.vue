@@ -51,16 +51,25 @@ const checkResult = ref(new Set()); // 檢核輸入結果
 let checkRepeat = ref([] as number[]) // 送出結果
 const promptMessage = ref(
     {
-      type: '', // 提示型別顏色區分 general: 綠色, warning: 黃色, error: 紅色
+      /*
+        提示型別顏色區分
+        type 邏輯為下
+        general: 綠色 、 value: 1,
+        warning: 黃色 、 value: 2
+        error: 紅色 、 value: 3
+      */
+      type: 1,
       message: '',
     }
 ); // 提示訊息
-let result = ref({})
+let result = ref({}) // 比對結果
 
 // 刷新初始化功能
 function refreshAnswer() {
   emptyNonRepetitiveNumber(); // 清空數據
   answerArray.value = nonRepetitiveNumber(4); // 重新賦值
+  checkRepeat.value = [] // 清除比對陣列
+  result.value = {} // 清除比對結果
 }
 
 // 鍵盤功能
@@ -79,44 +88,35 @@ function keyboardAction(item: string) {
       break;
     default:
       if (checkBeyond()) return; // 檢查是否超出輸入數量
-      if (checkResultRepeat(item)) {
-        promptMessage.value.type = 'warning'
-        promptMessage.value.message = '請勿重複輸入！！！！！！！！！'
+      if (checkResultRepeat(Number(item))) {
+        setMessage(2, '請勿重複輸入！！！！！！！！！')
       } else {
-        promptMessage.value.type = ''
-        promptMessage.value.message = ''
+        setMessage(null)
       }
       resultNumber.value = Array.from(checkResult.value) as number[]
       break;
   }
 }
 
+
+// 判斷是否顯示答案或者是問號
 function getCheckRepeat(index: number) {
-  if (resultNumber.value.indexOf(index) !== -1) {
+  if (checkRepeat.value.indexOf(index) !== -1) {
     return true
   } else {
     return false
   }
 }
 
-function setResult() {
-  result.value = compareWith1A2B(answerArray.value, resultNumber.value)
-  checkRepeat.value = compareWithNumberArray(
-      answerArray.value,
-      resultNumber.value,
-  );
-}
-
+// 判斷是否超出4個
 function checkBeyond() {
   let isBeyond = false
   // 判斷是否輸入超出
   if (resultNumber.value.length >= 4) {
-    promptMessage.value.type = 'warning'
-    promptMessage.value.message = '輸入數字數量已超過四個,請勿再輸入！！！！'
+    setMessage(2, '輸入數字數量已超過四個,請勿再輸入！！！！')
     isBeyond = true
   } else {
-    promptMessage.value.type = ''
-    promptMessage.value.message = ''
+    setMessage(null)
   }
   return isBeyond
 }
@@ -133,6 +133,42 @@ function checkResultRepeat(value): boolean {
   }
 
   return isRepeat
+}
+
+
+function setMessage(type: number | null, message: string = '') {
+  /*
+  提示型別顏色區分
+  type 邏輯為下
+  general: 綠色 、 value: 1,
+  warning: 黃色 、 value: 2
+  error: 紅色 、 value: 3
+  */
+
+  if (!type) {
+    promptMessage.value.type = 1
+    promptMessage.value.message = ''
+  } else {
+    promptMessage.value.type = type
+    promptMessage.value.message = message
+  }
+}
+
+// 送出結果驗證
+function setResult() {
+  const resultType =  compareWith1A2B(answerArray.value, resultNumber.value)
+
+  if (resultType.a || resultType.b) {
+    setMessage(1, `${resultType.a} A, ${resultType.b} B`)
+  } else {
+    setMessage(3, `沒中？？！笑你～`)
+  }
+
+
+  checkRepeat.value = compareWithNumberArray(
+      answerArray.value,
+      resultNumber.value,
+  );
 }
 </script>
 
